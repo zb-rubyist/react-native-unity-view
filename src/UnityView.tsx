@@ -5,7 +5,11 @@ import MessageHandler from './MessageHandler'
 import { UnityModule, UnityViewMessage } from './UnityModule'
 import { Component, useEffect, useState } from 'react'
 
-const { UIManager } = NativeModules
+const { UIManager, UnityViewUtil } = NativeModules
+
+interface UnityViewCustomParams {
+    [key: string]: string | number
+}
 
 export interface UnityViewProps extends ViewProps {
     /**
@@ -17,7 +21,9 @@ export interface UnityViewProps extends ViewProps {
      */
     onUnityMessage?: (handler: MessageHandler) => void;
 
-    children?: React.ReactNode
+    children?: React.ReactNode;
+    
+    customParams?: UnityViewCustomParams
 }
 
 let NativeUnityView
@@ -29,7 +35,7 @@ class UnityView extends Component<UnityViewProps> {
     }
 
     componentDidMount(): void {
-        const { onUnityMessage, onMessage } = this.props
+        const { onUnityMessage, onMessage, customParams } = this.props
         this.setState({
             handle: UnityModule.addMessageListener(message => {
                 if (onUnityMessage && message instanceof MessageHandler) {
@@ -40,6 +46,8 @@ class UnityView extends Component<UnityViewProps> {
                 }
             })
         })
+        
+        UnityViewUtil.setLaunchOptions(customParams)
     }
 
     componentWillUnmount(): void {
