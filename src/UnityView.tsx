@@ -8,7 +8,7 @@ import { Component, useEffect, useState } from 'react'
 const { UIManager, UnityViewUtil } = NativeModules
 
 interface UnityViewCustomParams {
-    [key: string]: string | number
+    [key: string]: string | number | boolean
 }
 
 export interface UnityViewProps extends ViewProps {
