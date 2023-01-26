@@ -114,6 +114,12 @@ public class UnityUtils {
         mUnityEventListeners.remove(listener);
     }
 
+    public static void beginUnityPlayer() {
+        unityPlayer.windowFocusChanged(true);
+        unityPlayer.requestFocus();
+        unityPlayer.resume();
+    }
+
     public static void addUnityViewToBackground() {
         if (unityPlayer == null) {
             return;
