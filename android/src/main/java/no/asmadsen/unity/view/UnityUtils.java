@@ -94,6 +94,13 @@ public class UnityUtils {
         }
     }
 
+    public static void unload() {
+        if (!_isUnityReady) {
+            return;
+        }
+        UnityPlayer.UnitySendMessage("ZedFramework", "Unload", "");
+    }
+
     /**
      * Invoke by unity C#
      */
