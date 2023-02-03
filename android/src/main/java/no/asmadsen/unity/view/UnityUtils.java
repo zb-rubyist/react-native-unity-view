@@ -117,7 +117,6 @@ public class UnityUtils {
     public static void beginUnityPlayer() {
         unityPlayer.windowFocusChanged(true);
         unityPlayer.requestFocus();
-        unityPlayer.resume();
     }
 
     public static void addUnityViewToBackground() {

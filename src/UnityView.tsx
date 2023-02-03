@@ -52,7 +52,7 @@ class UnityView extends Component<UnityViewProps> {
 
     componentWillUnmount(): void {
         UnityModule.removeMessageListener(this.state.handle)
-        UnityModule.pause()
+        UnityModule.unloadUnity()
     }
 
     render() {

@@ -36,6 +36,11 @@ public class UnityNativeModule extends ReactContextBaseJavaModule implements Uni
     }
 
     @ReactMethod
+    public void unloadUnity() {
+        UnityUtils.postMessage("ZedFramework", "ReceiveMessageFromReact", "{ \"target\": \"unity\", \"data\": \"requestUnload\" }");
+    }
+
+    @ReactMethod
     public void postMessage(String gameObject, String methodName, String message) {
         UnityUtils.postMessage(gameObject, methodName, message);
     }

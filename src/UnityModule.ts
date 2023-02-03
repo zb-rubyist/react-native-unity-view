@@ -20,6 +20,8 @@ export interface UnityModule {
      */
     createUnity (): Promise<boolean>;
 
+    unloadUnity (): void;
+
     /**
      * Send Message to UnityMessageManager.
      * @param message The message will post.
@@ -114,6 +116,11 @@ class UnityModuleImpl implements UnityModule {
 
     public async createUnity () {
         return UnityNativeModule.createUnity()
+    }
+
+    public unloadUnity() {
+        UnityNativeModule.pause()
+        UnityNativeModule.unloadUnity()
     }
 
     public postMessageToUnityManager (message: string | UnityViewMessage) {

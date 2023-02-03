@@ -33,8 +33,8 @@ public class UnityViewManager extends SimpleViewManager<UnityView>
 
         if (UnityUtils.getPlayer() != null) {
             view.setUnityPlayer(UnityUtils.getPlayer());
-            UnityUtils.resume();
             UnityUtils.beginUnityPlayer();
+            UnityUtils.resume();
         } else {
             UnityUtils.createPlayer(context.getCurrentActivity(), new UnityUtils.CreateCallback() {
                 @Override
