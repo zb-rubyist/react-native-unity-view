@@ -4,8 +4,11 @@ import android.app.Activity;
 import android.content.Context;
 import android.graphics.PixelFormat;
 import android.os.Build;
+import android.util.Log;
 import android.view.ViewGroup;
 import android.view.WindowManager;
+
+import com.unity3d.player.IUnityPlayerLifecycleEvents;
 import com.unity3d.player.UnityPlayer;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -14,9 +17,9 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 public class UnityUtils {
     private static final CopyOnWriteArraySet<UnityEventListener> mUnityEventListeners =
             new CopyOnWriteArraySet<>();
-    private static UnityPlayer unityPlayer;
-    private static boolean _isUnityReady;
-    private static boolean _isUnityPaused;
+    private static volatile UnityPlayer unityPlayer;
+    private static volatile boolean _isUnityReady;
+    private static volatile boolean _isUnityPaused;
 
     public static UnityPlayer getPlayer() {
         if (!_isUnityReady) {
@@ -33,7 +36,7 @@ public class UnityUtils {
         return _isUnityPaused;
     }
 
-    public static void createPlayer(final Activity activity, final CreateCallback callback) {
+    public static void createPlayer(final Activity activity, IUnityPlayerLifecycleEvents lifecycle, final CreateCallback callback) {
         if (unityPlayer != null) {
             callback.onReady();
             return;
@@ -48,7 +51,24 @@ public class UnityUtils {
                     fullScreen = true;
                 }
 
-                unityPlayer = new UnityPlayer(activity);
+                unityPlayer = new UnityPlayer(activity, new IUnityPlayerLifecycleEvents() {
+                    @Override
+                    public void onUnityPlayerUnloaded() {
+                        pause();
+                        addUnityViewToBackground();
+                        for (UnityEventListener listener : mUnityEventListeners) {
+                            try {
+                                listener.onUnload();
+                            } catch (Exception e) {
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onUnityPlayerQuitted() {
+
+                    }
+                });
 
                 try {
                     // wait a moument. fix unity cannot start when startup.
@@ -57,9 +77,11 @@ public class UnityUtils {
                 }
 
                 // start unity
+                Log.d("Unity", "[@:UnityUtils] start unity");
                 addUnityViewToBackground();
                 unityPlayer.windowFocusChanged(true);
                 unityPlayer.requestFocus();
+                Log.d("Unity", "[@:UnityUtils] resume unity");
                 unityPlayer.resume();
 
                 // restore window layout
@@ -82,6 +104,7 @@ public class UnityUtils {
 
     public static void pause() {
         if (unityPlayer != null) {
+            Log.d("Unity", "[@:UnityUtils] on native pause 1");
             unityPlayer.pause();
             _isUnityPaused = true;
         }
@@ -95,6 +118,8 @@ public class UnityUtils {
     }
 
     public static void unload() {
+        Log.d("Unity", "[@:UnityUtils] unload");
+        Log.d("Unity", "[@:UnityUtils] _isUnityReady: " + _isUnityReady);
         if (!_isUnityReady) {
             return;
         }
@@ -122,12 +147,16 @@ public class UnityUtils {
     }
 
     public static void beginUnityPlayer() {
+        Log.d("unity", "[@:UnityUtils] beginUnityPlayer Begin");
         unityPlayer.windowFocusChanged(true);
         unityPlayer.requestFocus();
+        Log.d("unity", "[@:UnityUtils] unityPlayer resume");
         unityPlayer.resume();
+        Log.d("unity", "[@:UnityUtils] beginUnityPlayer End");
     }
 
     public static void addUnityViewToBackground() {
+        Log.d("unity", "[@:UnityUtils] addUnityViewToBackground Begin");
         if (unityPlayer == null) {
             return;
         }
@@ -140,9 +169,11 @@ public class UnityUtils {
         final Activity activity = ((Activity) unityPlayer.getContext());
         ViewGroup.LayoutParams layoutParams = new ViewGroup.LayoutParams(1, 1);
         activity.addContentView(unityPlayer, layoutParams);
+        Log.d("unity", "[@:UnityUtils] addUnityViewToBackground End");
     }
 
     public static void addUnityViewToGroup(ViewGroup group) {
+        Log.d("unity", "[@:UnityUtils] addUnityViewToGroup Begin");
         if (unityPlayer == null) {
             return;
         }
@@ -154,6 +185,7 @@ public class UnityUtils {
         unityPlayer.windowFocusChanged(true);
         unityPlayer.requestFocus();
         unityPlayer.resume();
+        Log.d("unity", "[@:UnityUtils] addUnityViewToGroup End");
     }
 
     public interface CreateCallback {

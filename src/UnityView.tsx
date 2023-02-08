@@ -2,7 +2,7 @@ import * as React from 'react'
 import { NativeModules, requireNativeComponent, View, ViewProps, ViewPropTypes } from 'react-native'
 import * as PropTypes from 'prop-types'
 import MessageHandler from './MessageHandler'
-import { UnityModule, UnityViewMessage } from './UnityModule'
+import { ListenerHandle, UnityModule, UnityViewMessage } from './UnityModule'
 import { Component, useEffect, useState } from 'react'
 
 const { UIManager, UnityViewUtil } = NativeModules
@@ -21,6 +21,8 @@ export interface UnityViewProps extends ViewProps {
      */
     onUnityMessage?: (handler: MessageHandler) => void;
 
+    onUnload?: () => void;
+
     children?: React.ReactNode;
     
     customParams?: UnityViewCustomParams
@@ -33,9 +35,13 @@ class UnityView extends Component<UnityViewProps> {
     state = {
         handle: null
     }
+    unloadEventHandle: ListenerHandle
 
     componentDidMount(): void {
-        const { onUnityMessage, onMessage, customParams } = this.props
+        const { onUnityMessage, onMessage, onUnload, customParams } = this.props
+        this.unloadEventHandle = UnityModule.addUnityUnloadListener(() => {
+            onUnload()
+        })
         this.setState({
             handle: UnityModule.addMessageListener(message => {
                 if (onUnityMessage && message instanceof MessageHandler) {
@@ -51,6 +57,9 @@ class UnityView extends Component<UnityViewProps> {
     }
 
     componentWillUnmount(): void {
+        if (this.unloadEventHandle)
+            this.unloadEventHandle.release();
+
         UnityModule.removeMessageListener(this.state.handle)
         UnityModule.pause()
     }

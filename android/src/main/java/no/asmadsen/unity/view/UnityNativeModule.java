@@ -27,7 +27,7 @@ public class UnityNativeModule extends ReactContextBaseJavaModule implements Uni
 
     @ReactMethod
     public void createUnity(final Promise promise) {
-        UnityUtils.createPlayer(getCurrentActivity(), new UnityUtils.CreateCallback() {
+        UnityUtils.createPlayer(getCurrentActivity(), null, new UnityUtils.CreateCallback() {
             @Override
             public void onReady() {
                 promise.resolve(true);
@@ -59,5 +59,11 @@ public class UnityNativeModule extends ReactContextBaseJavaModule implements Uni
     public void onMessage(String message) {
         ReactContext context = getReactApplicationContext();
         context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onUnityMessage", message);
+    }
+
+    @Override
+    public void onUnload() {
+        ReactContext context = getReactApplicationContext();
+        context.getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class).emit("onUnityUnload", null);
     }
 }

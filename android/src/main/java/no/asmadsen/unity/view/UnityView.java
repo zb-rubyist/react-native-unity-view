@@ -9,7 +9,7 @@ public class UnityView extends FrameLayout {
 
     private UnityPlayer view;
 
-    protected UnityView(Context context) {
+    public UnityView(Context context) {
         super(context);
     }
 

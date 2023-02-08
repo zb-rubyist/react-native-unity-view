@@ -9,6 +9,10 @@ export interface UnityViewMessage {
     callBack?: (data: any) => void;
 }
 
+export interface ListenerHandle {
+    release: () => void
+}
+
 export interface UnityModule {
     /**
      * Return whether is unity ready.
@@ -61,6 +65,8 @@ export interface UnityModule {
      */
     addUnityMessageListener (listener: (handler: MessageHandler) => void): number;
 
+    addUnityUnloadListener(listener: () => void): ListenerHandle
+
     /**
      * Remove message listener.
      */
@@ -104,6 +110,9 @@ class UnityModuleImpl implements UnityModule {
     }
     private unityMessageListeners: {
         [hid: number]: (message: MessageHandler) => void
+    }
+    private unityUnloadListeners: {
+        [hid: number]: () => void
     }
 
     constructor () {
@@ -184,9 +193,24 @@ class UnityModuleImpl implements UnityModule {
         }
     }
 
+    public addUnityUnloadListener (listener: () => void) {
+        const id = this.getHandleId()
+        this.unityUnloadListeners[id] = listener
+        return this.createListenerHandle(() => [
+            delete this.unityUnloadListeners[id]
+        ])
+    }
+
+    private createListenerHandle(releaseCallback: () => void) {
+        return <ListenerHandle>{
+            release: releaseCallback
+        }
+    }
+
     private createListeners () {
         this.stringListeners = {}
         this.unityMessageListeners = {}
+        this.unityUnloadListeners = {}
         DeviceEventEmitter.addListener('onUnityMessage', message => {
             const result = handleMessage(message)
             if (result instanceof MessageHandler) {
@@ -199,6 +223,12 @@ class UnityModuleImpl implements UnityModule {
                     listener(result)
                 })
             }
+        })
+
+        DeviceEventEmitter.addListener('onUnityUnload', () => {
+            Object.values(this.unityUnloadListeners).forEach(listener => {
+                listener()
+            })
         })
     }
 
