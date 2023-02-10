@@ -51,8 +51,8 @@ public class UnityNativeModule extends ReactContextBaseJavaModule implements Uni
     }
 
     @ReactMethod
-    public void unload() {
-        UnityUtils.unload();
+    public void tryQuit() {
+        UnityUtils.tryQuit();
     }
 
     @Override

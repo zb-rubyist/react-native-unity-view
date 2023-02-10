@@ -43,4 +43,9 @@ RCT_EXPORT_METHOD(resume)
     UnityResumeCommand();
 }
 
+RCT_EXPORT_METHOD(tryQuit)
+{
+    UnityPostMessage(@"UnityMessageManager", @"onMessage", @"try_quit");
+}
+
 @end

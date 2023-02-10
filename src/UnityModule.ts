@@ -48,7 +48,7 @@ export interface UnityModule {
      */
     resume (): void;
 
-    unload (): void;
+    tryQuit(): void;
 
     /**
      * Receive string and json message from unity.
@@ -160,9 +160,8 @@ class UnityModuleImpl implements UnityModule {
         UnityNativeModule.removeUnityView()
     }
 
-    public unload() {
-        console.log("[@] invoke UnityNativeModule.unload()")
-        UnityNativeModule.unload()
+    public tryQuit() {
+        UnityNativeModule.tryQuit()
     }
 
     public addMessageListener (listener: (handler: string | MessageHandler) => void) {

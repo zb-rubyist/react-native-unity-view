@@ -12,9 +12,11 @@ RCT_EXPORT_MODULE(RNUnityView)
     self.currentView = [[RNUnityView alloc] init];
     if ([UnityUtils isUnityReady]) {
         [self.currentView setUnityView: [GetAppController() unityView]];
+        [[UnityFramework getInstance] registerFrameworkListener:self];
     } else {
         [UnityUtils createPlayer:^{
             [self.currentView setUnityView: [GetAppController() unityView]];
+            [[UnityFramework getInstance] registerFrameworkListener:self];
         }];
         [GetAppController() setUnityMessageHandler: ^(const char* message) {
             [_bridge.eventDispatcher sendDeviceEventWithName:@"onUnityMessage"
@@ -22,6 +24,16 @@ RCT_EXPORT_MODULE(RNUnityView)
         }];
     }
     return self.currentView;
+}
+
+- (void)unityDidUnload:(NSNotification*)notification {
+    NSLog(@"=== unityDidUnload called");
+    [_bridge.eventDispatcher sendDeviceEventWithName:@"onUnityUnload" body:nil];
+}
+
+- (void)unityDidQuit:(NSNotification*)notification {
+    NSLog(@"=== unityDidQuit called");
+  
 }
 
 - (dispatch_queue_t)methodQueue

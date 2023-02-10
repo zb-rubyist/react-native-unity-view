@@ -117,13 +117,12 @@ public class UnityUtils {
         }
     }
 
-    public static void unload() {
-        Log.d("Unity", "[@:UnityUtils] unload");
-        Log.d("Unity", "[@:UnityUtils] _isUnityReady: " + _isUnityReady);
+    public static void tryQuit() {
         if (!_isUnityReady) {
             return;
         }
-        UnityPlayer.UnitySendMessage("ZedFramework", "Unload", "");
+
+        UnityPlayer.UnitySendMessage("UnityMessageManager", "onMessage", "try_quit");
     }
 
     /**

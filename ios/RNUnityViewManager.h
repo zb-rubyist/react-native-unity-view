@@ -3,7 +3,7 @@
 #import "UnityUtils.h"
 #import "RNUnityView.h"
 
-@interface RNUnityViewManager : RCTViewManager
+@interface RNUnityViewManager : RCTViewManager<UnityFrameworkListener>
 
 @property (nonatomic, strong) RNUnityView *currentView;
 
